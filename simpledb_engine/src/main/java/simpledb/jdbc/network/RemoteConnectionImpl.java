@@ -2,6 +2,7 @@ package simpledb.jdbc.network;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Map;
 
 import simpledb.plan.Planner;
 import simpledb.server.SimpleDB;
@@ -63,6 +64,8 @@ class RemoteConnectionImpl extends UnicastRemoteObject implements RemoteConnecti
    void commit() {
       currentTx.commit();
       currentTx = db.newTx();
+      Map<String, Long> statistics = db.fileMgr().getStatistics();
+      statistics.forEach((k,v) -> System.out.printf("%s = %s \n",k,v));
    }
    
    /**
@@ -72,6 +75,8 @@ class RemoteConnectionImpl extends UnicastRemoteObject implements RemoteConnecti
    void rollback() {
       currentTx.rollback();
       currentTx = db.newTx();
+      Map<String, Long> statistics = db.fileMgr().getStatistics();
+      statistics.forEach((k,v) -> System.out.printf("%s = %s \n",k,v));
    }
 }
 
