@@ -1,6 +1,7 @@
 package network;
 import java.sql.*;
 
+import simpledb.jdbc.network.NetworkDataSource;
 import simpledb.jdbc.network.NetworkDriver;
 
 public class StudentMajor {
@@ -10,8 +11,10 @@ public class StudentMajor {
                  + "from DEPT, STUDENT "
                  + "where MajorId = DId";
 
+      NetworkDataSource dataSource = new NetworkDataSource();
+      dataSource.setServer("localhost");
       Driver d = new NetworkDriver();
-      try (Connection conn = d.connect(url, null);
+      try (Connection conn = dataSource.getConnection();
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(qry)) {
 
