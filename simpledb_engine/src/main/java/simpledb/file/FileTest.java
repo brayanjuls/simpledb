@@ -15,6 +15,12 @@ public class FileTest {
       int size = Page.maxLength("abcdefghijklm".length());
       int pos2 = pos1 + size;
       p1.setInt(pos2, 345);
+      int pos3 = pos2+4;
+      String content = "AHHHHASDASSADASDASDA ASDASDASDAS ASDASDASD ASDASDASDASD ASDASDASDASD ASDASDASD ASDASDASDASD ASDASDASDASD ASDASDASDA ASDASDASDADS ASDASDASD";
+      StringBuilder contentBuilder = new StringBuilder(content)
+              .append(content).append(content);
+
+      p1.setString(pos3,contentBuilder.toString());
       fm.write(blk, p1);
 
       Page p2 = new Page(fm.blockSize());

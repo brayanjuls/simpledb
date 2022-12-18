@@ -22,7 +22,10 @@ public class Page {
    }
 
    public void setInt(int offset, int n) {
-      bb.putInt(offset, n);
+      int contentSize = 4;
+      if(bb.remaining()-contentSize>0){
+         bb.putInt(offset, n);
+      }
    }
 
    public byte[] getBytes(int offset) {
@@ -34,9 +37,14 @@ public class Page {
    }
 
    public void setBytes(int offset, byte[] b) {
-      bb.position(offset);
-      bb.putInt(b.length);
-      bb.put(b);
+      //size of the content plus 4 bytes for the length of the content
+      int contentSize = b.length+4;
+      if(bb.remaining()-contentSize>0) {
+         bb.position(offset);
+         bb.putInt(b.length);
+         bb.put(b);
+      }
+      System.out.println("remaining: "+bb.remaining());
    }
    
    public String getString(int offset) {
