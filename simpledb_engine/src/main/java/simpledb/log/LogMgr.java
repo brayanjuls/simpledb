@@ -76,7 +76,7 @@ public class LogMgr {
          currentblk = appendNewBlock();
          boundary = logpage.getInt(0);
       }
-      int recpos = boundary - bytesneeded;
+      int recpos =  boundary - bytesneeded;
 
       logpage.setBytes(recpos, logrec);
       logpage.setInt(0, recpos); // the new boundary

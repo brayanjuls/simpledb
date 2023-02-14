@@ -23,8 +23,8 @@ public class Page {
    }
 
    public void setInt(int offset, int n) {
-      int contentSize = 4;
-      if(bb.remaining()-contentSize>0){
+      int contentSize = Integer.BYTES;
+      if(bb.remaining()-contentSize>=0){
          bb.putInt(offset, n);
       }
    }
@@ -45,7 +45,7 @@ public class Page {
          bb.putInt(b.length);
          bb.put(b);
       }
-      System.out.println("remaining: "+bb.remaining());
+    //  System.out.println("remaining: "+bb.remaining());
    }
    
    public String getString(int offset) {
