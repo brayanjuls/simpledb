@@ -3,6 +3,8 @@ package simpledb.buffer;
 import simpledb.file.*;
 import simpledb.log.LogMgr;
 
+import java.util.Optional;
+
 /**
  * Manages the pinning and unpinning of buffers to blocks.
  * @author Edward Sciore
@@ -10,6 +12,7 @@ import simpledb.log.LogMgr;
  */
 public class BufferMgr {
    private Buffer[] bufferpool;
+   private LRUCache<BlockId,Buffer> lru;
    private int numAvailable;
    private static final long MAX_TIME = 10000; // 10 seconds
    
@@ -23,8 +26,12 @@ public class BufferMgr {
    public BufferMgr(FileMgr fm, LogMgr lm, int numbuffs) {
       bufferpool = new Buffer[numbuffs];
       numAvailable = numbuffs;
-      for (int i=0; i<numbuffs; i++)
+      lru = new LRUCache<>(numbuffs);
+      for (int i=0; i<numbuffs; i++){
          bufferpool[i] = new Buffer(fm, lm);
+         lru.put(new BlockId("empty",i),bufferpool[i]);
+      }
+
    }
    
    /**
@@ -54,6 +61,7 @@ public class BufferMgr {
    public synchronized void unpin(Buffer buff) {
       buff.unpin();
       if (!buff.isPinned()) {
+         lru.put(buff.block(),buff);
          numAvailable++;
          notifyAll();
       }
@@ -112,6 +120,10 @@ public class BufferMgr {
    }
    
    private Buffer findExistingBuffer(BlockId blk) {
+      Optional<Buffer> unpinnedBuff = lru.get(blk);
+      if(unpinnedBuff.isPresent())
+         return unpinnedBuff.get();
+
       for (Buffer buff : bufferpool) {
          BlockId b = buff.block();
          if (b != null && b.equals(blk))
@@ -121,9 +133,7 @@ public class BufferMgr {
    }
    
    private Buffer chooseUnpinnedBuffer() {
-      for (Buffer buff : bufferpool)
-         if (!buff.isPinned())
-         return buff;
-      return null;
+      Optional<Buffer> buff = lru.getLRUNode();
+      return buff.filter(b -> !b.isPinned()).orElse(null);
    }
 }
